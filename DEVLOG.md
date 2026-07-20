@@ -24,3 +24,7 @@ interesting part is the work, not the IPs.
 - Triaged a rootkit-scanner alert (turned out benign — unattended security
   upgrades shifting file hashes) and documented the recurring pattern.
 - Stood up a temporary Reticulum mesh node to explore the network.
+- Built a fail-closed secret-scanning pipeline for this devlog: a pre-push git
+  hook and scanner that block any commit containing IP addresses, credentials,
+  keys, or high-entropy secrets, feeding a nightly automated publish. Verified
+  it aborts a real push the moment a leak is present.
