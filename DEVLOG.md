@@ -28,3 +28,26 @@ interesting part is the work, not the IPs.
   hook and scanner that block any commit containing IP addresses, credentials,
   keys, or high-entropy secrets, feeding a nightly automated publish. Verified
   it aborts a real push the moment a leak is present.
+
+## 2026-07-20
+
+- Replaced the soft, instruction-based reminder that kept this devlog updated
+  with real enforcement: a pair of hooks in my Claude Code config, one firing
+  at session end and one firing right before long conversations get
+  compacted (the exact moment a "remember to do X" instruction tends to get
+  lost). Detection reads the session's own file-edit history directly instead
+  of depending on git commits, since a lot of my projects don't push anymore —
+  so it works the same regardless of whether a project uses git at all. If
+  real work happened without this log getting updated, the session-end hook
+  blocks the session from closing until it's addressed; the pre-compaction
+  hook injects a reminder before the detail gets lost to summarization.
+- Ran a full functionality audit of Fracture, my open-source PyQt6 web
+  pentesting suite. Verified every module imports clean, the app builds all its
+  tabs, and the core intercepting proxy works end-to-end — pushed a live
+  request through it and confirmed the response came back and got logged. Also
+  verified the HTTPS interception path generates its CA and per-domain leaf
+  certs correctly. Full test suite green (14/14).
+- Fixed two issues the audit turned up: swapped a deprecated datetime call in
+  the cert code for the timezone-aware form (tests now run warning-clean), and
+  documented the optional WebEngine dependency the embedded browser tab needs
+  so it's no longer a silent gap in the install.
