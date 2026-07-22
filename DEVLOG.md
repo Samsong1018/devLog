@@ -51,3 +51,35 @@ interesting part is the work, not the IPs.
   the cert code for the timezone-aware form (tests now run warning-clean), and
   documented the optional WebEngine dependency the embedded browser tab needs
   so it's no longer a silent gap in the install.
+
+## 2026-07-21
+- Polished the two-factor code input on my self-hosted VPN's admin dashboard.
+  The 6-digit field had been rendering as an unstyled default input right next
+  to a properly styled password field, so I gave it a purpose-built treatment —
+  large centered spaced monospace digits with a focus ring matching the brand
+  accent — while keeping the numeric keypad and one-time-code autofill hints
+  intact. Deployed and verified against what the browser actually serves, not
+  just the source file.
+- Wrote a complete architecture-and-rebuild reference for that VPN box, built
+  from the running system rather than memory: the mesh networking, the
+  hand-written firewall, SSH hardening and port-knocking, the DNS ad-blocker,
+  the dashboard and its 2FA/session auth, the honeypot data pipeline, the ~20
+  self-monitoring scripts, log-shipping, encrypted backups, and an ordered
+  from-scratch rebuild runbook — every secret reduced to a "where it lives / how
+  to regenerate" pointer with no values. The goal was a single document I could
+  rebuild the whole box from by hand.
+- Extended that reference to cover the two machines the VPN box talks to but
+  doesn't run: the honeypot VM and the NAS. Documented the honeypot end-to-end —
+  the containerized SSH/telnet trap, its fake-server persona and accept-anything
+  credential policy, and the shipper daemon that tails its logs, adds geolocation,
+  and streams events to the dashboard with lossless retry — plus the NAS's three
+  roles (battery/UPS reporting, an append-only log sink, and a locked-down
+  forced-command backup receiver). Also wrote a full panel-by-panel rundown of the
+  dashboard itself, not just its login. The result documents the whole system
+  from three vantage points instead of one.
+- Rendered that reference doc to a self-contained HTML page and self-hosted it on
+  my private, network-only pages server — a small static-site host I run behind
+  the VPN — so the whole writeup is browsable in-place rather than living as a
+  loose file. Converted with an off-the-shelf markdown tool, wrapped in a minimal
+  responsive shell (light/dark, scrollable tables and code), and kept deliberately
+  off the public web since it's internal infrastructure detail.
