@@ -83,3 +83,10 @@ interesting part is the work, not the IPs.
   loose file. Converted with an off-the-shelf markdown tool, wrapped in a minimal
   responsive shell (light/dark, scrollable tables and code), and kept deliberately
   off the public web since it's internal infrastructure detail.
+
+## 2026-07-22
+- Patched and rebooted the server behind somab.dev to pick up a pending kernel
+  security update. Pre-flighted it first — confirmed the reboot was actually
+  required and that the site was healthy — then rebooted and verified it came back
+  on the new kernel with the web server serving and the site returning 200.
+  Downtime was under a minute.
