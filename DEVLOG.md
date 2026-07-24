@@ -90,3 +90,79 @@ interesting part is the work, not the IPs.
   required and that the site was healthy — then rebooted and verified it came back
   on the new kernel with the web server serving and the site returning 200.
   Downtime was under a minute.
+
+## 2026-07-23
+- Closed out a small security backlog from an earlier multi-project audit.
+  Two items turned out to already be fixed from an earlier session I hadn't
+  logged: a pentest tool's Flask-cookie decoder had a hard cap against
+  decompression-bomb payloads, and its Werkzeug debugger-PIN calculator let
+  you override the module/class name for apps that don't use a vanilla Flask
+  setup (silently wrong otherwise). An integrity-checker script's baseline
+  file also turned out to already be HMAC-signed with a key stored outside
+  the folder it watches, so tampering with the monitored files alone can't
+  forge a clean baseline — verified that one live.
+- Fixed the one item that was still open: a period-tracking web app was
+  falling back to a random in-memory secret for its CSRF tokens on every
+  restart, which meant any open browser tab got logged out of form
+  submissions after a deploy. Set a persistent secret in production and
+  restarted the service — verified clean startup and that the site still
+  loads.
+- Built a branded maintenance page for this portfolio site so a server
+  reboot shows something better than a raw browser connection error.
+  Put a CDN in front of the origin and wrote a small edge function that
+  passes normal traffic straight through untouched, and only serves the
+  custom "be right back" page (matching the site's real look and feel,
+  with a script that auto-reloads once things are back) if the origin
+  is actually unreachable or erroring. Wired it as a wildcard so any
+  future subdomain gets the same protection automatically the moment
+  it's put behind the CDN — no repeat setup needed. Also fixed access
+  logging so real visitor IPs still show up correctly now that traffic
+  passes through the CDN layer. Tested the whole failure path for real
+  by briefly taking the origin down and confirming the fallback page
+  rendered before bringing it back up clean.
+- Cleaned up my personal shell config: removed a stale alias pointing at a
+  path that no longer existed (a broken duplicate of one that already
+  worked), dropped an alias for a tool that's been superseded by a newer
+  project, and fixed a misplaced section header left over from an earlier
+  reorganization.
+- Planned out the build for a new piece of self-hosted infrastructure
+  arriving tomorrow: a small dedicated machine that'll run a self-hosted
+  password manager and take over a few high-trust jobs (integrity
+  monitoring, a second backup copy, tamper-resistant logging) currently
+  living as stopgap workarounds on a general-purpose box. Worked through
+  a genuinely tricky design problem along the way — a password manager
+  that also stores your two-factor codes creates a circular dependency if
+  you're not careful, since the one account guarding everything else can't
+  be gated by a code generated inside itself. Resolved it by keeping that
+  one account's second factor independent (phone app plus a hardware key)
+  while letting every other account's codes live inside the vault normally.
+  Disk encryption strategy for a machine that won't have someone standing
+  in front of it to unlock it after a reboot is still being worked out —
+  leaning toward hardware-backed auto-unlock if the board supports it,
+  otherwise just minimizing how often it needs to reboot in the first
+  place.
+- Chased down live "API unreachable" errors on my VPN's admin dashboard.
+  Root cause: one endpoint was running five unindexed aggregate queries
+  against a honeypot events database that had grown past a million rows,
+  and on a memory-constrained box that was enough to blow past the reverse
+  proxy's timeout on every poll. Confirmed it live in the proxy's error
+  log — the same request failing every 30-90 seconds, continuously, until
+  fixed. Added the missing indexes; the same query went from about 12
+  seconds to 20 milliseconds. Watched the error log afterward to confirm
+  the timeouts actually stopped rather than just assuming the fix worked.
+- Also did a full pass over three days of unified server logs (auth,
+  firewall drops, VPN peer connect/disconnect, app errors) to separate
+  normal background internet noise — routine port-scanning, one earlier
+  unrelated API blip — from anything that actually needed attention.
+- Audited every project for leftover references to an old personal email
+  address I'm migrating away from, including checking whether the
+  honeypot's GeoIP enrichment pipeline touched it anywhere (it doesn't —
+  came back clean). Found and fixed real references in three web apps'
+  privacy policy and terms pages, one push-notification config value in
+  each, and the site's security contact file. One of the three apps is a
+  Next.js project, so that one needed a real production rebuild rather
+  than just editing a static file. Consolidated all of the public-facing
+  ones to a dedicated project contact address instead of a personal inbox,
+  and updated a couple of purely cosmetic SSH key labels on infra boxes to
+  match the new personal address. Verified all of it live afterward with
+  zero old references left anywhere touched.
