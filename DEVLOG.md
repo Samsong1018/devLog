@@ -166,3 +166,28 @@ interesting part is the work, not the IPs.
   and updated a couple of purely cosmetic SSH key labels on infra boxes to
   match the new personal address. Verified all of it live afterward with
   zero old references left anywhere touched.
+
+## 2026-07-24
+- Added test coverage for a security control that was flagged as missing
+  after an earlier fix to a P2P file-sharing app's relay fallback path.
+  When direct peer-to-peer fails and traffic has to relay through a
+  signaling server, the key exchange for the encryption is no longer
+  implicitly trusted — both sides derive a short human-readable code and
+  a person has to confirm the codes match before any data moves, closing
+  off a man-in-the-middle risk. That confirmation gate itself had zero
+  test coverage (only the underlying cryptographic math was tested).
+  Wrote tests that drive the actual gate through the app's real public
+  API against a lightweight fake network/WebRTC harness: confirming
+  proceeds and sends data, rejecting aborts with nothing sent, canceling
+  mid-wait tears everything down cleanly, and going 120 seconds without
+  a response is treated as a rejection rather than hanging indefinitely
+  or silently proceeding. Test suite went from 79 to 99 passing tests,
+  type-checked clean, no regressions.
+- Closed out the remaining items from an earlier infrastructure audit on
+  my self-hosted VPN box. Verified two previously-flagged items were
+  actually already fixed (an integrity monitor's watch list and its
+  re-baselining), corrected the stale note that said otherwise, then
+  cleaned up the two real leftovers: removed a handful of stale debug
+  backup files sitting in a backend directory, and disabled an unused
+  network service (an NFS-related dependency with no actual NFS mounts
+  anywhere on the box) after confirming nothing depended on it.
