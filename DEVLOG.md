@@ -191,3 +191,68 @@ interesting part is the work, not the IPs.
   backup files sitting in a backend directory, and disabled an unused
   network service (an NFS-related dependency with no actual NFS mounts
   anywhere on the box) after confirming nothing depended on it.
+
+## 2026-07-26
+
+- Started CyberGame, a cybersecurity learning game that isn't a flashcard
+  app. I've built the quiz-app version of this twice now and both times it
+  drifted into rote pattern-matching, so this time I did the research
+  first. Ran four parallel research passes (current cert exam objectives,
+  the existing landscape of hacking games and training platforms, twenty
+  game-design concepts across twenty genres, and an eight-way architecture
+  comparison) and turned the output into a design brief plus a 388-line
+  build checklist with 185 checkboxes and eleven go/no-go gates.
+- The concept inventory came out at 748 tagged rows across sixteen
+  knowledge territories, plus a seventeenth "gap layer" for the stuff no
+  certification actually tests: reading a log format you've never seen,
+  knowing when *not* to escalate, ticket hygiene, saying "I don't know,
+  here's how I'd find out." Tagged every row as inert, hybrid, or
+  procedural. About 72% is procedural, meaning it has a decision or a
+  cause-and-effect chain in it rather than being pure memorization. Cert
+  prep products ship roughly the inverse ratio, which is the opening.
+- Two design decisions I'm fairly confident about. It's one game with
+  eight mechanics rather than eight games, because a concept only counts
+  as learned once it survives in two different mechanics, and separate
+  games can't share that evidence. And answers get computed rather than
+  written down wherever a program can derive them (hashes via WebCrypto,
+  certificates via a real ASN.1 parser, CVSS via the published formula),
+  because wrong information in a security study tool is worse than no
+  tool at all.
+- Also went with plain HTML/CSS/JS over a game engine. It's a game made
+  of documents, terminals, logs and graphs, which is exactly what the DOM
+  is good at, and an engine's actual strengths would go unused while
+  costing me text selection, deep links, and a payload small enough that
+  someone can click a link and be playing in five seconds.
+
+- Started building the cybersecurity game I designed earlier, and got from an
+  empty directory to something playable. It's a SOC triage desk: messages
+  arrive, you have a clock, a rulebook that grows as you work, and three calls
+  you can make. Looking something up in the rulebook costs a few seconds of
+  clock, so it's never blocked, just slower than knowing it.
+- The design rule I'm holding myself to is that answers get computed, never
+  written down. SPF, DKIM and DMARC results, alignment, lookalike domains and
+  the correct verdict are all derived from the message itself by a verifier
+  module. Content can't be quietly wrong about something a program works out,
+  and wrong information in a security study tool is worse than no tool. The
+  message generator declares what verdict the verifier must reach and throws if
+  it doesn't, so a mislabelled phishing email is a loud build failure instead of
+  silent rot. Checked that across 36,000 generated messages.
+- The mechanic is built around the two things email triage training usually gets
+  backwards. A DMARC pass isn't a claim about intent, because an attacker who
+  registers their own lookalike domain gets flawless authentication on it. And a
+  DMARC fail isn't proof of malice, because forwarders break SPF constantly.
+  Both are reachable in play, and over-fitting to either one makes you lose.
+- Kept the core logic completely free of DOM, storage, and any nondeterminism,
+  enforced by a CI check rather than by good intentions. That bought me a
+  headless simulator that plays thirty shifts with a synthetic player, and it
+  immediately earned its keep by catching two scheduler bugs that no unit test
+  would have found: shifts were coming out one item long because a scheduling
+  bucket was gated on a tier that's unreachable early on. Fixed, and it went
+  from 32 items across 30 shifts to 270.
+- Six real bugs total, five caught by tests rather than by reading the code. My
+  favourite was a spaced-repetition bug where indirect credit reset a concept's
+  decay clock all the way to "just reviewed", which would have quietly let you
+  keep prerequisites fresh forever without ever actually being asked about them.
+- Next step is deliberately not more code. Five real sessions across five
+  different days, then answer honestly whether I wanted a sixth. If the core
+  loop isn't fun, adding the other seven mechanics won't rescue it.
