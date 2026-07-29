@@ -465,3 +465,259 @@ interesting part is the work, not the IPs.
   because "I set the config value" is precisely the claim that was wrong last
   time. Also added a flight recorder writing one line a minute, so next time
   there's a record of the run-up and not just the crater.
+- Follow-up: disabled the Pi's onboard WiFi entirely. It had been sitting on
+  both ethernet and wireless on the same subnet, two DHCP addresses, two
+  default routes to the same gateway. That's ambiguity with no upside on a
+  machine that's racked and wired — either address can end up bound to either
+  adapter, and the wireless one had power saving on, so traffic could land on
+  a radio that was asleep.
+- First attempt only half worked. Removing the network profile kept the
+  interface down across a reboot, but the radio block silently came back
+  unblocked, because the service that restores that state isn't enabled by
+  default. So the interface was only down by side effect. Went one level
+  lower and disabled the hardware in the boot config instead — now the device
+  doesn't exist and the driver never loads.
+- That's twice in one night that a change looked applied and wasn't. Same
+  lesson as the logging: reboot and re-check, don't trust the state you see
+  right after running the command.
+- Two things on the VPN today. First, a small one: the dashboard was listing
+  connected peers in whatever order they'd been added to the config, so the
+  newest box sat at the bottom out of sequence. Fixed it in the API rather
+  than the page, since the frontend just renders whatever order it's handed —
+  one change covers every client. Sorted on parsed addresses rather than text,
+  because as strings ".10" sorts before ".2".
+- Second, the real one: my VPN box checks its own critical config files
+  against a list of known-good hashes. The flaw is that the list lives on the
+  same box it's protecting. Anyone who gets root can change a file, regenerate
+  the list, and the alarm never goes off. The box is the only witness to what
+  it used to look like.
+- So the hashes now get pushed to my vault machine, which stores them
+  append-only in a hash chain — each entry sealed against the one before it.
+  The key the VPN box uses is locked to a single command: it can add an entry
+  and nothing else. It can't read the history back, can't delete, can't get a
+  shell. A fully compromised VPN box can still lie about tomorrow, but it can
+  no longer quietly rewrite what it said yesterday.
+- Tested it as an attacker rather than trusting the design. Tried to get a
+  shell with that key, to read the log, to delete it — all three just land in
+  the receiver and get rejected. Then took a copy of the chain and edited a
+  past entry: caught. Deleted one: caught twice over, by the sequence gap and
+  the broken link.
+- Also caught myself shipping the same bug for the third time this week: the
+  push script merged error output into the value it was checking for success,
+  so a harmless SSH warning about terminals made a submission that had
+  genuinely been recorded report as a failure. Fixed the check, and wrote the
+  pattern down properly this time — diagnostics don't belong in the same
+  stream as the thing you're testing.
+- Closed the obvious hole in yesterday's integrity work: the checker wasn't
+  watching itself, and neither was the script that ships hashes off-box. Both
+  are now in the monitored set. Without that, anyone with root could blank the
+  checker and the baseline would go on cheerfully reporting clean — the thing
+  doing the reporting being the thing they'd just edited.
+- Nearly shipped that broken. My "is this already applied?" check searched the
+  whole file for a path that also appears in the script's own header comment,
+  so it decided the work was already done and changed nothing, while printing
+  success. Caught it by expanding the array in a shell and counting entries
+  instead of believing the patch script. Fourth time this week I've been bitten
+  by matching a loose substring.
+- Then went looking at my honeypot database, which had grown to 874MB and
+  looked like a runaway. It wasn't. The nightly cleanup was running fine and
+  correctly deleting nothing: retention is 90 days and the data only goes back
+  84, so there was genuinely nothing old enough to remove. First real deletion
+  lands next week. Every page in the file is live data — no bloat to reclaim.
+- Two genuine bugs did fall out of looking properly. Retention was quietly 91
+  days rather than 90: timestamps are stored with a "T" between date and time,
+  the cutoff was generated with a space, and on the boundary day that one
+  character sorts the wrong way and every row survives an extra day. Confirmed
+  by running the comparison at both cutoffs before and after.
+- The second: the write-ahead log had grown to 33MB against a 4MB threshold,
+  because the nightly checkpoint used a mode that copies data back but never
+  shrinks the file. Worth checking it wasn't the reader-pinning leak I fixed
+  earlier this month — it wasn't, a full checkpoint drained it instantly with
+  no contention, which a pinned log couldn't have done. Switched the mode.
+- Moved my VPN box's nightly encrypted backups out of the network file share
+  they'd been landing in. The share is writable and browseable, so every one
+  of those backups could be deleted by anything on the network that could log
+  in to it. They were encrypted, which protects the contents and does nothing
+  at all for whether they still exist. A backup someone else can delete isn't
+  a backup. Same fix I applied to my password vault's backups last week.
+- Checked first that the destination genuinely isn't exported anywhere —
+  there's no point moving files from an exposed directory to another one.
+- Two things pointed at the old path, not one: the receiving script and a
+  nightly cleanup job in cron. Missing the second would have left a cleanup
+  pointing at a directory that no longer exists — which fails silently and
+  quietly, and you find out months later when the disk is full.
+- Copied and byte-compared all nine files before deleting any originals,
+  rather than moving them. Then tested the whole path from the sending side
+  with the real key: a push stored correctly and returned the exact string the
+  sender checks for, a repeat push was refused as a duplicate, a filename with
+  directory traversal in it was refused, and asking for a shell got
+  intercepted and refused too.
+- Also had to correct something I'd written down earlier. I'd recorded the
+  vault backup key on that machine as locked down to a single source address.
+  Reading the actual file, it has no restrictions at all — full shell access.
+  The neighbouring key is properly locked down, which is probably why I
+  misremembered. Left it alone and flagged it rather than quietly changing a
+  second backup system in the same sitting.
+- Went back over the whole vault build end to end — the vault box itself, the
+  VPN hub it depends on, and the NAS it backs up to — to actually verify
+  everything was secure and working rather than trusting my own notes from
+  the build.
+- The unrestricted backup key I'd flagged and left alone last time was still
+  unrestricted. This time I built a proper receiving script for it — same
+  pattern as an existing one I already trust: validate the filename, refuse
+  anything that doesn't match, never overwrite, cap the size — then locked
+  the key down to only run that. Tested both directions before calling it
+  done: a bad command gets refused, a correctly named file still comes
+  through clean.
+- A notification script had been quietly logging false failures for weeks —
+  it looked like every alert was failing to send, even though the messages
+  were arriving fine. Root cause was two different processes racing to write
+  the same temporary file. Nothing ever read that file back, so I just
+  stopped writing it.
+- A honeypot database had wide-open write permissions — any local process
+  could've written straight into the forensic record, bypassing the
+  application entirely. Tightened it, then confirmed the one process that's
+  actually supposed to write to it still could.
+- Rebooted the VPN hub for a pending security update and it surfaced a real
+  bug: the reverse proxy tried to start before the VPN interface had finished
+  claiming its address, lost that race, and sat dead silently for several
+  minutes — no dashboard, no monitoring ingest, nothing watching to say so.
+  Fixed the startup ordering so the proxy waits on the tunnel, restarted it,
+  and confirmed it was actually serving again rather than assuming a restart
+  fixed it.
+- Right after that reboot I got a wave of file-integrity alerts that looked
+  alarming out of context. Turned out to be my own earlier fix — I'd edited a
+  script that's on the integrity watch list and forgotten to reset the
+  baseline afterward, so it was correctly flagging my own change as
+  unauthorized. Checked every other watched file by hand before calling it
+  routine, rather than assuming that was the whole story.
+
+## 2026-07-28
+
+### CyberGame — the game was cheating, and I could measure it
+
+- Playtest feedback: you could learn the right answer from a repeating pattern
+  instead of from the material. If the body said "forwarded", let it go. If
+  there was a macro-enabled spreadsheet attached, escalate. Never had to read a
+  single header.
+- Before changing anything I built a gate to measure it. It generates thousands
+  of messages, then asks how well each *visible cue* — an attachment type, a
+  word in the body, the presence of a header — predicts the correct answer on
+  its own. It fails the build if any single cue predicts above 85%.
+- Nine cues were at 100%. Not two. A macro attachment, the word "forwarded", a
+  mailing-list header, a reply-to address, any link at all, a missing signature
+  header, a subject line mentioning passwords — each one of those, by itself,
+  told you the answer every single time.
+- The cause was structural and it was mine. Messages were built from eleven
+  templates, each with a fixed correct answer baked in and a distinctive
+  surface. So the surface predicted the answer. The generator was authoring the
+  answer, which is exactly the thing the project's own rules forbid.
+- Rewrote it so a message is assembled from independently drawn parts — who sent
+  it, how it travelled, what it carries, how it's worded — and the answer is
+  whatever the checker derives from the combination. A template is now allowed
+  to fix at most one of those. Same spreadsheet, three different correct answers
+  depending on who sent it.
+- That surfaced a real error I'd shipped. Any message claiming to be from the
+  client's own domain that failed authentication was being flagged as a critical
+  spoof — including a perfectly legitimate mailing-list message from a sender
+  with no signature on that path. The game was teaching people to escalate their
+  own colleagues' forwarded mail, which is the precise opposite of one of the two
+  lessons it's built around. Now it distinguishes "failed with no explanation"
+  from "failed and there's a forwarder right there in the headers".
+- Every cheap cue now sits between 42% and 54%, against a 38% baseline for just
+  guessing the commonest answer. Two cues still predict perfectly and I've
+  allowed them explicitly with written reasons, because they're true rules
+  rather than artefacts of how I generate messages: an executable attachment,
+  and a credential-harvesting page on a domain unrelated to anyone involved.
+  Both are deliberately rare.
+- 131 tests, three of which assert the property directly rather than testing a
+  specific case: a fixed feature has to produce more than one answer, forwarded
+  mail has to be both released and held, a macro has to reach all three verdicts.
+
+### CyberGame — it's a desktop now
+
+- The last fix stopped you being able to guess the answer from a surface cue.
+  What was left was the shape: a verdict button above a list of radio options is
+  a quiz, however good the reasoning underneath it is.
+- So it isn't a screen of questions any more, it's a workstation. A menubar, a
+  pinned ticket queue down the left, a dock along the bottom, and four apps —
+  shift status, mail, terminal, runbook. You clock in, a queue of tickets lands,
+  you open one, it opens in whichever app it needs, you work it and close it.
+- The mechanics didn't change at all. Both of them already took "here is an
+  element, mount yourself into it", so a window is just a different element.
+  That interface was written months of decisions ago and it's the only reason
+  this was a cheap change rather than a rewrite.
+- The ticket queue is a new surface, and everything I learned last week says a
+  new surface will get learned if it carries information. So ticket titles are
+  built only from things already measured as telling you nothing, priority is
+  drawn from the random seed and is deliberately uncorrelated with severity, and
+  the module that builds tickets is structurally unable to read the answer. A
+  test asserts that two messages with opposite correct answers produce identical
+  tickets, and the tell detector now watches the queue too.
+- Priority being frequently wrong is realistic, incidentally. Learning not to
+  trust the queue's opinion is a genuine skill rather than a simulation artefact.
+- Caught one thing before it shipped: the desktop's main pane and the message
+  views were both going to use the same CSS class name, which would have quietly
+  restyled the inside of every email.
+- The shell went from one file to seven and had no tests at all, so I added a
+  DOM test harness and thirteen tests that drive the whole loop — clock in,
+  queue fills, ticket routes to the right app, verdict submits, queue empties,
+  summary appears. Writing them found two real bugs, including one where the
+  page's own HTML had been silently turned into a function call.
+- 150 tests. Next is the difficulty ramp: policy memos that arrive as email and
+  change what the correct answer is.
+
+### CyberGame — free-floating windows
+
+- Looked at the tiled version and didn't like it, so it's real windows now.
+  They open, drag, resize, stack, minimise and close, and the dock works like a
+  taskbar — click an app to open or raise it, click the focused one to minimise.
+- The tiled layout had existed for one specific reason, which I'd written down
+  at the time: both of the game's views listened for keystrokes globally, so two
+  of them on screen at once would mean typing "1" into a terminal also casting a
+  verdict in a mail window behind it. Tiling made that impossible by only ever
+  having one view alive.
+- So the actual fix came first. Each view now listens on its own element, which
+  means a keystroke only reaches the thing that has focus — the rule every real
+  desktop uses. That makes focus load-bearing rather than decorative: raising a
+  window has to genuinely move focus into it, and now does. There's a test that
+  puts two views side by side, types into one, and asserts the other didn't move.
+- Two bugs surfaced that were only reachable once two windows can exist at once.
+  Every window carried the same element IDs, which is invalid HTML and means any
+  lookup can find the wrong window's controls. And focusing a new window focused
+  its first button — which the triage view deliberately ignores number keys on,
+  so opening a mail window was silently killing its own keyboard shortcuts.
+- Windows can't be dragged off screen, won't shrink below a usable size, and
+  re-clamp if the browser resizes. On a narrow screen there's no floating at
+  all — dragging windows around a phone is miserable.
+- Desktop tests went 13 to 21, including drag tracking by exact pixel deltas and
+  the focus-isolation one. 158 total.
+- Went hunting for a rack mount to hold a small PC and a couple of Pi boards
+  side by side in the same slot. The commercial options didn't actually add
+  up — one popular "10-inch" Pi rack format and the real half-rack standard
+  aren't the same width, despite looking similar in listings, and stacking
+  two of them would've overrun a standard rack opening by more than an inch.
+  Worth doing the math before ordering rather than after.
+- Decided to just design the bracket myself instead — one part sized for the
+  whole slot, then split down the middle for printing, so both halves share
+  the exact same bolt-hole positions instead of hoping two separately-bought
+  parts happen to line up.
+- Wrote it as parametric code rather than a fixed model, so the numbers (rack
+  dimensions, mounting hole spacing) are named variables instead of buried
+  magic numbers — easy to tweak once, everything downstream updates.
+- First render caught a real design mistake: I'd built the rack-mounting ears
+  flat, with the screw holes drilled straight down. Real rack rails are
+  vertical, so the ears need to stand up on edge with the holes drilled
+  sideways, front to back. Would've been obvious in person and completely
+  wrong once actually installed — caught it from a screenshot before it
+  wasted anyone's filament.
+- Second render caught a subtler one: a wall that was supposed to sit on a
+  floor was only mathematically touching it, not overlapping it — a classic
+  CAD trap where two surfaces meet at a perfect seam with zero shared volume,
+  which can print as a hairline gap or a weak, barely-attached joint instead
+  of one solid piece. Fixed by giving every part that touches the floor a
+  small deliberate overlap instead of a flush touch.
+- Neither bug was one I could catch alone — I don't have the CAD tool
+  installed on this machine, so the whole loop ran on someone else rendering
+  and sending back a screenshot. Good reminder that "looks right in the code"
+  and "is right" aren't the same thing when you can't actually see the part.
