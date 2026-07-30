@@ -721,3 +721,36 @@ interesting part is the work, not the IPs.
   installed on this machine, so the whole loop ran on someone else rendering
   and sending back a screenshot. Good reminder that "looks right in the code"
   and "is right" aren't the same thing when you can't actually see the part.
+
+## 2026-07-29
+
+### CyberGame — the rules change on you now
+
+- The difficulty ramp is in. Every few shifts a policy memo lands on the clock-in
+  screen: your employer has changed what they want done about something. You
+  can't start the shift until you've acknowledged it, because a rule change
+  nobody read is indistinguishable from no rule change.
+- The interesting part is what it forced me to separate. Severity used to be
+  hardcoded — a lookalike domain *was* an escalation. But that's two different
+  claims wearing one hat. "This domain is a homoglyph of the client's" is a
+  fact you can compute. "We escalate those rather than holding them" is a
+  decision somebody made, and decisions change. Those live in different files now.
+- The line that must not be crossed: a policy can change the call, never the
+  evidence. It can say "hold archives this week"; it can't say "treat this as
+  though it failed authentication". There's a test asserting that under every
+  version of the rules, the findings and their details are byte-identical — only
+  the weight attached to them moves. And the debrief always tells you both, so
+  you can see the evidence didn't change even when the answer did.
+- One memo is temporary and expires, which announces itself too. A heightened
+  posture nobody stands down is a real thing that happens to real teams.
+- Writing the memos turned out to be a design problem rather than a writing
+  problem, and the tell detector caught two bad ones before they shipped. My
+  first attempt re-weighted the two most common findings and collapsed one of
+  the three possible answers from 28% of cases to 7% — the game became "escalate
+  everything". My second attempt made "authentication failed" predict escalate
+  90% of the time, which would have quietly destroyed the one lesson the whole
+  thing is built around: that failing authentication is not the same as being
+  malicious. Both reasons are now comments in the file so I don't re-add them.
+- The gate now runs against every version of the rules, and separately fails any
+  version where guessing the commonest answer beats reading the evidence.
+- 171 tests.
