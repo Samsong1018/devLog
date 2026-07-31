@@ -592,8 +592,6 @@ interesting part is the work, not the IPs.
   unauthorized. Checked every other watched file by hand before calling it
   routine, rather than assuming that was the whole story.
 
-## 2026-07-28
-
 ### CyberGame — the game was cheating, and I could measure it
 
 - Playtest feedback: you could learn the right answer from a repeating pattern
@@ -754,3 +752,40 @@ interesting part is the work, not the IPs.
 - The gate now runs against every version of the rules, and separately fails any
   version where guessing the commonest answer beats reading the evidence.
 - 171 tests.
+
+## 2026-07-30
+
+### CyberGame — running a gate that had never been run
+
+- Two bits of debt I'd flagged and kept not doing. Neither needed a decision
+  from anyone, which is exactly why they were the right things to pick up.
+- The first: my content pipeline is "fail-closed" — it's supposed to refuse to
+  build if a concept is malformed, if a prerequisite graph has a loop, if
+  something cites a source that isn't there. It had never once been shown to
+  refuse anything. Every other check in the project guards something a test can
+  watch go wrong. This one guards whether bad content ships at all, and it had
+  no evidence behind it.
+- So now there's a test that feeds the real scripts deliberately broken content
+  and checks they reject it *for the right reason* — exiting with an error for
+  some unrelated reason would have passed a weaker test than I wanted. Sixteen
+  cases, including a claim that cites a source it doesn't have, which is the one
+  the whole "never assert what you can't back up" rule rests on.
+- Two of the cases check it *doesn't* reject things: an empty content folder is
+  a normal state early on, and two concepts marked as contrasting with each
+  other is not a loop. A gate that fails on the wrong things is a gate someone
+  eventually switches off.
+- It all passes. Good, but I'd rather know than assume.
+- The second: I'd never measured test coverage. The target was 80% on the
+  scheduling and mastery code; it's actually 100, 100, 99, 99. Fine.
+- The useful number was somewhere else entirely. The file holding my save-file
+  validator came back at zero percent — the function that decides whether a save
+  is safe to load had never been executed by a test, and neither had the import
+  itself. That's the entire restore path, and the failure mode is somebody
+  losing all their progress.
+- Testing it found a real bug. Imported records were being written without the
+  key the lookup filters on, so they'd silently vanish from an append-only log
+  that's specifically designed never to lose anything. The browser storage
+  backend didn't have the problem, which meant the same save file behaved
+  differently depending on which one you were using. That's the part that
+  actually worried me.
+- 224 tests.
