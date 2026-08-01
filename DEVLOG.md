@@ -789,3 +789,97 @@ interesting part is the work, not the IPs.
   differently depending on which one you were using. That's the part that
   actually worried me.
 - 224 tests.
+
+## 2026-07-31
+
+### CyberGame — pacing, and two scheduler bugs behind it
+
+- Asked for this to feel more like Papers Please: one or two new things a day
+  rather than everything at once. The first shift was introducing nine concepts,
+  which is a firehose, not a day at work.
+- Capping it at two was the easy part. The interesting part was that capping it
+  didn't work — new material still stopped arriving for stretches of sixteen
+  shifts, and finding out why turned up two real bugs in the scheduler.
+- The first: my selection weights read as proportions — 45% of the pool should
+  be due material, 25% new, and so on — but they were being applied to each
+  candidate individually. So a bucket's influence scaled with how many things
+  happened to be in it. Late in a playthrough the "revisit" bucket holds twenty
+  concepts against the "new" bucket's two, which meant new material was getting
+  a twentieth of the share it was supposed to. Normalising per bucket is what
+  the numbers always claimed to mean.
+- The second was better. A concept you'd been introduced to but hadn't yet
+  practised was in *no* bucket at all — one bucket starts at "practised", one is
+  for "never seen", and "introduced" fell in the gap. It could only come up if
+  it happened to fall due. So the single thing standing between you and new
+  material was the single thing the scheduler had no way to choose to work on.
+  There's now a bucket specifically for those, on the principle that the fastest
+  way to have something new tomorrow is to finish teaching the thing in the way.
+- Result: a steady two new concepts a shift, and everything introduced by day
+  nine or ten instead of day thirty.
+- Also: the policy notices that change the rules only ever appeared on the
+  clock-in screen, so you couldn't re-read one halfway through the shift it
+  applied to — exactly when you'd want to check. They're mail, so they're in the
+  mailbox now, alongside the end-of-shift briefings, each saying whether it's
+  currently in force or has lapsed.
+- And a test-harness flaw worth writing down: a failing test used to *hang* the
+  suite rather than fail it, because cleanup sat at the end of each test body
+  and an assertion throwing skipped it, leaving a timer running. Moved cleanup
+  to run unconditionally. It now fails in 46 milliseconds where it used to run
+  until the timeout killed it. I hit this for real while verifying something
+  else, which is how it got noticed.
+- 227 tests.
+
+### CyberGame — a third mechanic, and the pattern I nearly built twice
+
+- Two mechanics wasn't enough, and not for the reason I expected. A concept only
+  counts as retained once you've been tested on it two different ways, so with
+  two mechanics most concepts were stuck one short. 23 of 27 sat at "practicing"
+  indefinitely. A third mechanic doesn't add to the library, it unlocks the one
+  I already have.
+- The new one is an artifact inspector: certificates, tokens, and HTTP response
+  headers. The shape is deliberately different from the other two. The mail desk
+  asks for one decision plus the evidence behind it. The terminal asks you to
+  produce the answer. This one asks you to *enumerate* — tick everything wrong
+  with this, and nothing that isn't.
+- It's scored on precision and recall separately, which matters more than it
+  sounds. Ticking every box catches 100% of real defects and still scores under
+  half, because a report full of invented findings costs the next person the time
+  to disprove them. Ticking nothing never invents anything and scores zero. There
+  is no lazy strategy that survives both numbers.
+- Everything is a real artifact rather than a description of one. A certificate
+  gets genuinely encoded and then *parsed back from those bytes* to be graded. A
+  token carries a real HMAC that gets recomputed. I wrote SHA-256 and HMAC by
+  hand for this — the browser's built-in crypto is asynchronous, and the pure
+  core of this project is synchronous, so using it would have spread promises
+  through every caller.
+- One limitation I wrote into the file rather than quietly leaving: the key
+  inside a generated certificate is a number of the right size, not a real RSA
+  key. Key size is the thing the drill inspects and bit length is exactly how
+  you'd measure it for real, and nothing checks a signature against it, so a real
+  keypair would buy realism and no correctness.
+- **The mistake.** My first version planted exactly one flaw per artifact. A test
+  asking for a two-defect example couldn't find one in 200 tries, which is how I
+  caught it. That's the same archetype problem I had to rewrite the mail
+  generator out of a week ago: if there's never more than one thing wrong, "find
+  something, then stop" wins without understanding any of the checks. Worse, the
+  scoring *rewards* stopping early, because there's never a second thing to miss.
+- Rewrote it so each property is drawn independently — a certificate's expiry,
+  its lifetime, its key, its signature algorithm, its issuer, its CA flag and its
+  hostnames are seven separate coin flips. Now about a third come out clean, a
+  third have one problem, and a quarter have two or more. That spread is pinned
+  by a test, with loose bounds so it survives someone retuning a weight later.
+- Three real bugs on the way: a certificate that was supposed to be clean could
+  have a start date in the future (a short lifetime with a long time remaining
+  hasn't begun yet); two flaws could be planted when only one of them is
+  findable, putting a lie in the generator's own records; and the hostname
+  extension parsed as empty because I hadn't stepped through one layer of
+  wrapping — which looks identical to an extension that parsed fine and contained
+  nothing.
+- A test I weakened on purpose, which I want on the record because it's the kind
+  of thing that's usually cheating. One test asserted a shift contains at least
+  five items. Inspecting a certificate honestly takes longer than reading a mail
+  header, so the count dropped to three — at 90% of the time budget. The count
+  was a proxy and had become a misleading one. It now asserts the thing the code
+  actually promises: the queue stopped filling because nothing else fits. My
+  first attempt at that assertion was too strong and failed, correctly.
+- 227 to 257 tests. Eight new concepts, taking the library to 35.
