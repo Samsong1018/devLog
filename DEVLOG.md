@@ -883,3 +883,60 @@ interesting part is the work, not the IPs.
   actually promises: the queue stopped filling because nothing else fits. My
   first attempt at that assertion was too strong and failed, correctly.
 - 227 to 257 tests. Eight new concepts, taking the library to 35.
+
+### CyberGame — a question I made unanswerable, and a clock to fix it
+
+- Playtest question that landed: *how are you supposed to know whether a
+  certificate has expired or hasn't started yet?* You weren't. That one's mine.
+- Both are claims about a date relative to *now*. The panel showed the two
+  boundary dates and nothing anywhere on the desk carried a date — the top bar
+  had a shift counter and a countdown timer, that's it. So the grader could work
+  out the answer and the player structurally could not.
+- Which is a specific kind of mistake worth naming. The rule I hold this project
+  to is that every answer must be *computed*, never authored. I checked that.
+  What I didn't check is that it's computable **by the person being asked**. An
+  unanswerable question isn't a hard question, it's a broken one.
+- Fixed by putting the reference instant at the top of the decoded panel —
+  exactly the moment the grading compares against, so what you see is what's
+  being judged. Still no relative phrasing anywhere: "expired 53 days ago" would
+  be handing over the verdict rather than the evidence for it. The comparison
+  stays yours; you just have both numbers now.
+- The test asserts answerability rather than markup. The instant is present, it
+  equals the one the grader uses, both bounds are readable, and moving the clock
+  the direction that should clear the defect does clear it — so if that row ever
+  stopped mattering, the test fails.
+
+### CyberGame — a desk clock, and a terminal that doesn't list everything it does
+
+- Follow-up ask: put the date in the top bar like a Linux desktop panel. Two
+  things had to be fixed first before that was even honest.
+- The weekday in the top bar came from the *shift number*, not the date, so
+  shift 5 was labelled "Tue" whatever day it actually was. Putting a real date
+  next to that would have been a visible contradiction. Weekday now comes from
+  the date; the shift field just says "shift 5". The countdown reads "6:12 left"
+  so it isn't mistaken for a wall clock sitting right beside one.
+- And the clock only *ran* during a shift. The single timer in the whole app
+  started at clock-in, so off shift the date sat frozen at whenever the page
+  loaded. The desktop owns a permanent tick now, torn down with it — a timer
+  outliving the thing it draws into is how a failing test turns into a hanging
+  one, which I've already been bitten by on this project.
+- Went with UTC, partly because a security operations desk genuinely runs on it,
+  mostly so the two places showing a time agree instead of being an offset apart.
+- Then easter eggs in the off-shift terminal: neofetch, fortune, cowsay, sl,
+  sudo, xyzzy, matrix, the vim-versus-emacs argument, and a few that just say no.
+  Two rules I wrote into the file: nothing gives away a drill answer, and nothing
+  lies about a real command. sudo fails the way sudo actually fails. `rm -rf /`
+  refuses the way the real one refuses. If you meet these outside the game later,
+  nothing should surprise you. `help` admits the list is incomplete and stops
+  there — being shown where they are isn't finding them.
+- **Then I immediately made the same mistake I'd just finished fixing.** Wired
+  the terminal's `date` to the system clock while the top bar used the game's
+  clock, and in the test harness they came out half a day apart. Two clocks
+  disagreeing — the exact defect from an hour earlier, in a brand new surface.
+  Same lesson as the other repeat I hit today: fixing a class of bug in one place
+  does not carry to the next place. You have to go looking for it again.
+- One clock is now exposed for everything downstream to read, with a test that
+  the two agree, and a second test that walks every easter egg checking none of
+  them prints something a drill expects you to have earned.
+- 263 tests. I verified both new regression tests fail with only their own fix
+  reverted, rather than trusting that passing meant anything.
