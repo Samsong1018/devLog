@@ -940,3 +940,51 @@ interesting part is the work, not the IPs.
   them prints something a drill expects you to have earned.
 - 263 tests. I verified both new regression tests fail with only their own fix
   reverted, rather than trusting that passing meant anything.
+
+## 2026-08-01
+
+### CyberGame — a gate for the bug my gates couldn't see
+
+- Yesterday's playtest found a question the player couldn't answer: a certificate
+  was graded expired-or-not against "now", and nothing on screen showed what
+  "now" was. Fixed it then. Today I went looking for why *every* check I have
+  passed while that shipped.
+- The answer is that all of them reason about the content and the code. The rule
+  this project lives by is that answers must be **computed, never authored** —
+  and I'd been enforcing that on the thing doing the computing. But the rule has
+  two halves. The answer has to be derived, *and* every input to that derivation
+  has to be visible to the person being asked. Only the first half had a gate.
+- Which is a nasty class of bug, because from inside a test suite an unanswerable
+  question looks exactly like a hard one. The grader agrees with itself perfectly
+  either way. Nothing is inconsistent. It's just impossible.
+- So: a new check that generates hundreds of items per mechanic, runs the real
+  grader, renders the real UI, clicks everything a player could click to reveal
+  more, and asserts the evidence behind every finding is actually there in the
+  text. Evidence behind a toggle counts — expanding full headers is a real thing
+  an analyst does. Evidence behind nothing doesn't.
+- The map of "which finding rests on which evidence" is written by hand rather
+  than pulled out of the grader. If I derived it, the gate would agree with the
+  grader by construction — which is the exact circular reasoning that let the
+  original bug through. It has to be an independent statement of what a player
+  would point at to justify a call.
+- **Verified it twice, because a new gate that passes immediately proves
+  nothing.** Put the original bug back: 55 findings fail. Then broke something
+  completely different — the mail client's full-headers toggle — to check it
+  wasn't just memorising the one case: 43 fail, because a forwarding judgement
+  rests on a mail path the player could no longer reach.
+- Results of the sweep: the mail desk is clean, the inspector is clean now. So it
+  wasn't systemic, it was one mechanic. The gate exists whether or not it
+  recurs, and a new finding with no evidence declared fails the build — you can't
+  add a question without saying what would answer it.
+- The terminal needed a different question, since a shell has no screen to put
+  evidence on. There the equivalent is whether the canonical solution actually
+  reaches full marks using only commands the game ships. Worth stating because
+  the existing check was weaker — it only confirmed the question *has* an answer,
+  and an answer no available command can reach is the same failure in a different
+  costume. Swept all 18 goals, all clean.
+- **And then I nearly shipped a redundant test.** Wrote one for that, sabotaged
+  the solver to confirm it wasn't vacuous, and the failure output revealed an
+  existing test had caught it too — one that checks more than mine did. Deleted
+  mine, widened the existing one's coverage instead. Finished the hour with one
+  fewer test than I started with, which is the right outcome and not one I'd have
+  found without deliberately trying to break my own new test.
