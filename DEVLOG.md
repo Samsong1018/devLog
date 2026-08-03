@@ -988,3 +988,44 @@ interesting part is the work, not the IPs.
   mine, widened the existing one's coverage instead. Finished the hour with one
   fewer test than I started with, which is the right outcome and not one I'd have
   found without deliberately trying to break my own new test.
+
+## 2026-08-02
+
+- Caught the public project logs on my site up to date. They'd gone about three
+  weeks stale while the private running log kept growing, so this was mostly a
+  transcription job with a sanitization pass on top.
+- 33 new entries across four existing project logs, plus a new one for the
+  security game I've been building since late July.
+- The interesting part of that is what doesn't go in. The password manager box
+  lives on a deliberately boring-sounding subdomain, because certificate
+  transparency logs are public and permanent, so anyone watching them for my
+  domain sees the name forever. Publishing "here is what that subdomain is" on
+  my own site would have undone the only thing that name was for. It's described
+  by capability instead.
+- Same rule for the rest: no addresses, no ports, no usernames, no host keys.
+  Ran the secret scanner I built for this repo over every changed file plus a
+  targeted grep, and it came back clean.
+- One honest status change rather than a flattering one: the voice assistant is
+  now marked on hold, not prototyping. Its hardware became a NAS three weeks ago
+  and nothing has moved since. A portfolio that only ever says "active" isn't
+  telling you anything.
+- Fixed the hook that nags me to write these entries, because it just falsely
+  nagged me for an entry I'd already written.
+- It was checking whether a specific set of file-editing tools had been used on
+  the log files. I'd appended to them from the shell instead, which that check
+  can't see. So it was inferring "did this file change" from a transcript rather
+  than asking the filesystem.
+- Now it compares the files' modification times against when the session
+  started. That catches every way a file gets written instead of one way.
+- The bigger problem was the other direction, and it was silent. Work detection
+  also only looked at editing tools, so a session where all the real work
+  happened over SSH on a remote box triggered nothing at all. That's most of my
+  infrastructure work. Whole evenings could go unlogged and nothing would say so.
+- Added shell-command detection for that, kept deliberately narrow. A hook that
+  cries wolf gets turned off, so read-only commands are absent from the match
+  list on purpose and writes to scratch paths don't count.
+- Fails safe: if it can't work out when the session began, it falls back to the
+  old behaviour instead of blocking on a guess.
+- 24 self-test cases plus all six decision paths driven through the real hook
+  with controlled timestamps. The false positive is silent, SSH-only work now
+  blocks, read-only sessions stay quiet.
