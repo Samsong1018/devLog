@@ -1029,3 +1029,33 @@ interesting part is the work, not the IPs.
 - 24 self-test cases plus all six decision paths driven through the real hook
   with controlled timestamps. The false positive is silent, SSH-only work now
   blocks, read-only sessions stay quiet.
+
+## 2026-08-04
+
+### AHDev — chasing a vanishing wallpaper back to a script I wrote
+
+- Started as a hardware question: a second monitor was showing spiderweb-line
+  artifacts with the glass itself intact. Checked the OS side first before
+  calling it physical — EDID reading clean, native resolution locked, link
+  status good, no reconnect spam in the kernel log since boot. Signal path was
+  fine, which is what let me say with confidence it's damage under the glass,
+  not a cable or driver problem.
+- Then, trying to just reposition that monitor in display settings, position
+  changes stopped sticking and the wallpaper started disappearing. Different bug,
+  and it turned out to be mine — a background script I'd written months ago to
+  auto-restore desktop icon positions after a monitor change.
+- The watcher listens for a "monitors changed" signal and restores icons after
+  it fires. Reasonable, except the settings panel fires that signal repeatedly
+  while you're actively dragging a monitor around, not once at the end. So the
+  script was force-restarting the process that draws the desktop background
+  every 7-8 seconds for the entire time I was trying to change anything —
+  stomping the in-progress change before it could ever get confirmed, and
+  blanking the wallpaper as a side effect of the repeated restart.
+- Caught it by lining up two logs side by side: the icon-restore script's own
+  output and the desktop compositor's errors, same timestamps, every single
+  cycle. Fix was a debounce — wait for the signal to go quiet for a few seconds
+  before acting once, instead of acting on every single event in a burst.
+- Smaller gotcha along the way: killing the stale process by matching its
+  command line killed my own shell instead, because the shell's own command
+  line literally contained the text I was searching for. Switched to killing by
+  process ID and moved on.
