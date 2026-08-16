@@ -1030,6 +1030,15 @@ interesting part is the work, not the IPs.
   with controlled timestamps. The false positive is silent, SSH-only work now
   blocks, read-only sessions stay quiet.
 
+## 2026-08-14
+
+### AMvpn — chasing "rsyslog errors" back to a log-rotation restart and a hardening warning, not a real failure
+
+- Went hunting for the source of recurring rsyslog error reports on my self-hosted VPN box. Turned out rsyslog isn't actually failing — it restarts cleanly every night as part of normal log rotation, and a security scanner (Lynis) flags it daily as "unsafe" purely because the systemd unit is missing a couple of sandboxing directives, not because anything is broken.
+- While digging I did find two real, low-severity patterns: a Telegram bot listener that fails for a couple of minutes at almost the same time every day before recovering on its own — traced it to the firewall dropping the far side's connection-close packets after the local connection-tracking entry had already expired — and a DNS resolver throwing occasional upstream failures against one of its providers a few times a day.
+- Also caught a stray networking quirk in the kernel log: the box's own internal address showing up as an "impossible" source address on the wrong interface a few times a day. Worth a look, not urgent.
+- No actual outages, no failed services, firewall state intact end to end. Good reminder that "the monitoring is throwing errors" and "something is broken" aren't the same claim — worth separating them before chasing the wrong thing.
+
 ## 2026-08-04
 
 ### AHDev — chasing a vanishing wallpaper back to a script I wrote
@@ -1059,3 +1068,48 @@ interesting part is the work, not the IPs.
   command line killed my own shell instead, because the shell's own command
   line literally contained the text I was searching for. Switched to killing by
   process ID and moved on.
+
+## 2026-08-15
+
+### SENTINEL OS — a content bug that was the same bug the project already had a rule against
+
+- This is a study game built around one rule: a concept can't count as "learned"
+  until it's been tested two different ways. The idea is you shouldn't be able
+  to pass by recognizing the shape of a question instead of actually knowing the
+  material — learned that the hard way from two earlier quiz-app attempts that
+  both turned into flashcard memorization in disguise.
+- Went looking for what content to add next and instead found a case where the
+  rule wasn't actually being followed. Eight concepts — every certificate, JWT
+  and HTTP-header concept in the game — only had one mechanic testing them.
+  They were capped at "practicing" forever, no matter how well you played,
+  because there was no second mechanic to confirm it against. Same failure
+  mode the two-mechanic rule exists to catch, just sitting quietly in the
+  content instead of in the code.
+- Fixed it for the certificate concepts by reusing the real X.509 generator
+  that already exists for the certificate-inspection mechanic — same DER
+  bytes, same encode-then-parse discipline — and planting a small, fixed set
+  of certificates on the hosts used by the terminal mechanic instead. Wrote a
+  minimal but real `openssl x509` command for the shell to read them with.
+  Had to hand-roll its flag parsing, since the shell's existing flag parser
+  assumes short flags cluster together (`-la` = `-l -a`) and openssl's flags
+  don't work that way — `-noout` would've silently exploded into five
+  meaningless one-letter flags.
+- Verified the fix actually did something rather than trusting the diff: ran
+  the headless simulator both before and after the change, same seed. The
+  default run came back byte-identical either way — turned out it just never
+  happened to route through those three concepts in that short a run,
+  confirmed by literally stashing the change and diffing. Widened the sim run
+  and got the real signal: two-mechanic coverage went from 5 concepts to 8,
+  and the number of concepts that never got scheduled at all went from 3 to
+  zero.
+- Three of the eight were fixed at that point. The other five — JWTs and HTTP
+  headers — turned out cheap, same session: reused the existing generators
+  again, and since that evidence is plain text instead of a binary format,
+  the only new tool needed was a small `base64 -d` for decoding a token.
+  Deliberately narrowed one of the five to only test the "algorithm: none"
+  case rather than a tampered signature, since actually verifying a
+  signature needs a cryptographic operation this shell doesn't have — no
+  point pretending a lesson is testable when it isn't. All eight closed by
+  the end of the session; every certificate, token and header concept in
+  the game now has real second-mechanic coverage instead of being
+  permanently stuck half-credited.
