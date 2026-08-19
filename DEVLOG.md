@@ -1113,3 +1113,20 @@ interesting part is the work, not the IPs.
   the end of the session; every certificate, token and header concept in
   the game now has real second-mechanic coverage instead of being
   permanently stuck half-credited.
+
+## 2026-08-19
+
+- Audited my self-hosted password manager box after a hardening pass and
+  caught a real bug: a directive meant for the SSH *server* config had ended
+  up in the SSH *client* config instead, which silently broke every outbound
+  backup push for 9 straight nights. Confirmed the gap with service logs
+  (9 consecutive failed runs, zero valid backups the whole time), fixed the
+  config, and verified the next backup actually landed. Same failure shape as
+  an earlier incident — a backup pipeline going quiet without an alert — so
+  the real fix is a freshness watchdog, not just patching this one instance.
+- Cleaned up a self-hosted TOTP app I'd deployed alongside the password
+  manager, now that I'm using a different TOTP service — removed the app,
+  its isolated Docker network, and its backup timer so nothing keeps trying
+  to run against a service that no longer exists.
+- Confirmed the box's tamper-evident integrity log is still chaining
+  correctly post-hardening, and its firewall is still enabled.
