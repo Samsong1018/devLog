@@ -1130,3 +1130,42 @@ interesting part is the work, not the IPs.
   to run against a service that no longer exists.
 - Confirmed the box's tamper-evident integrity log is still chaining
   correctly post-hardening, and its firewall is still enabled.
+
+## 2026-08-28
+
+**Root-caused a self-hosted game server that accepted connections and then
+silently dropped every one of them.**
+- Symptom: the client would reach the server, show its password prompt, then
+  fall straight into a generic timeout. No error, no rejection message, and
+  nothing written to the server's log.
+- The real blocker was an assumption inherited from earlier debugging. The
+  server's log file was empty, and that had been recorded as "no diagnostic
+  signal available." It wasn't true — the game rotates its log on every
+  restart and redirects live output to stdout, so the actual logs had been on
+  disk and in the journal the whole time.
+- Reading them surfaced a strong suspect: the server was a patch version
+  behind the client, and the store's build metadata showed the matching
+  server-side patch had been shipped for clients only and never released for
+  dedicated servers — so no amount of updating would ever close the gap.
+- That suspect was wrong. It was a real, verifiable fact sitting right next
+  to the actual problem, which is the most expensive kind of red herring.
+  Rather than act on it, I ran a packet capture on the game port during a
+  live connection attempt.
+- The capture showed the client reaching the server and the server answering:
+  eight bidirectional exchanges over about 370ms, then a clean negotiated
+  close with no retry from either side. That is not a network failure. It
+  ruled out every relay, tunnel, VPN and ISP theory at once, and it ruled out
+  the version gap too, since the two sides were clearly talking.
+- Actual cause: the connection method. The game registers itself with the
+  platform's session layer, and joining through the server browser goes via
+  that path. The console's raw connect-by-address command opens the transport
+  connection but never completes the session join, so the server negotiates,
+  refuses, and hangs up — silently, with nothing written to any log.
+  Connecting the supported way worked immediately.
+- Ruled out with evidence rather than assumption along the way:
+  file-descriptor limits (the classic cause of exactly this symptom),
+  interface binding, firewall rules, mods, and hostname resolution.
+- Two takeaways. "The log is empty" is a claim, not a premise — it went
+  unverified and cost more time than the bug did. And a fact that survives
+  every check can still be the wrong explanation; the capture cost one minute
+  and saved an evening spent downgrading a client for no reason.
