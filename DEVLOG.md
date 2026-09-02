@@ -1169,3 +1169,27 @@ silently dropped every one of them.**
   unverified and cost more time than the bug did. And a fact that survives
   every check can still be the wrong explanation; the capture cost one minute
   and saved an evening spent downgrading a client for no reason.
+
+## 2026-09-01
+
+**Found and fixed a silently stale search index behind my personal
+knowledge-base search tool.**
+- The search script reads from a SQLite full-text index that's supposed to
+  stay in sync with several hundred markdown notes.
+- Turned out the index hadn't been rebuilt in weeks — nothing was wired up
+  to refresh it automatically after the original one-time build. Roughly a
+  quarter of the notes were invisible to search as a result.
+- Rebuilt it, verified the count matches file-for-file, and added a daily
+  scheduled job so it can't silently drift out of sync again.
+
+**Re-audited my self-hosted password manager's backup pipeline after two
+prior silent-failure incidents.**
+- Wanted to confirm the earlier fixes actually held, rather than trusting a
+  fix and moving on.
+- Backups have completed clean every night for the past two weeks —
+  confirmed from service logs on the box itself, not just "the schedule
+  looks right."
+- Two items still open from the same audit: no automated alert yet if a
+  backup run goes stale again, and the offline copy of the decryption key
+  still lives in only one physical location. Both flagged as the next
+  things to close.
