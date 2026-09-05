@@ -1193,3 +1193,34 @@ prior silent-failure incidents.**
   backup run goes stale again, and the offline copy of the decryption key
   still lives in only one physical location. Both flagged as the next
   things to close.
+
+## 2026-09-04
+
+**CyberGame — built the event renderer and noise generator that turns an
+attack chain into something that actually needs investigating.**
+- The game's technique library (25 real MITRE ATT&CK techniques, hand-cited
+  against attack.mitre.org) only ever declared the *shape* of the telemetry
+  each one produces — source, event type, field names. This phase decides
+  the actual values: a synthesizer covering every distinct field the library
+  declares, organized by category instead of one-off per field.
+- The harder half, and the one I spent more time on: burying the signal in
+  noise. Five independent, always-on sources of benign activity — normal
+  login/process patterns, a nightly backup job, admins legitimately active
+  off-hours, one employee with an odd-but-innocent pattern, two people
+  sharing a VPN egress IP — composed together rather than picked from a
+  fixed list of "flavors." A generator that draws from a small enumerated
+  list of noise types is exactly the failure mode that turns a deduction
+  puzzle into a scavenger hunt, and it's bitten this project's other
+  generators before.
+- Wrote a small script to actually print a rendered case to the terminal and
+  read it, rather than trusting the design on paper. That caught three real
+  bugs a schema check would have waved through: an exfiltration technique
+  whose entire premise is abusing a *legitimate* cloud storage provider was
+  instead rendering the attacker's own lookalike phishing domain; an
+  attacker chain step with no prerequisites crashed the world-state model
+  because it wasn't the step the code assumed always went first; and a
+  supposedly-random noise count turned out to be a fixed function of the
+  difficulty setting — which defeats the entire point of noise if a player
+  could learn to read it.
+- Everything determinism-checked and covered by tests before merging; full
+  gate suite green.
