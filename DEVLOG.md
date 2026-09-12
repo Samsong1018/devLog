@@ -1224,3 +1224,18 @@ attack chain into something that actually needs investigating.**
   could learn to read it.
 - Everything determinism-checked and covered by tests before merging; full
   gate suite green.
+
+## 2026-09-11
+
+**somab.dev — added an `llms.txt`.**
+- Following the emerging `llms.txt` convention (a robots.txt-style file
+  aimed at AI crawlers instead of search engines): a plain-markdown summary
+  of my projects, security background, and education, so an LLM reading the
+  site gets an accurate rundown instead of scraping styled HTML.
+- Pulled every line straight from what's already live on the site — no
+  exaggerated claims, and no hidden text aimed at steering how an AI
+  summarizes me. That's not personal branding, it's manipulating whatever
+  tool a recruiter is using to screen me, and it falls apart the moment
+  anyone checks.
+- Not deployed yet — reading through it myself first since it's the exact
+  thing an AI would end up summarizing me from.
