@@ -1239,3 +1239,46 @@ attack chain into something that actually needs investigating.**
   anyone checks.
 - Not deployed yet — reading through it myself first since it's the exact
   thing an AI would end up summarizing me from.
+
+## 2026-09-17
+
+**Wrote a cold-start runbook before physically moving my server rack.**
+- Everything in the rack has to come down, so the risk isn't the shutdown,
+  it's the boot afterwards. My vault box is full-disk encrypted and
+  deliberately has no TPM or network-bound auto-unlock, so it does not come
+  back on its own. It stops at a passphrase prompt in early boot and waits.
+- That inverts the startup order. Powering things up in the reverse of how
+  they went down is wrong: the NAS has to be first, because when I'm off
+  the home network it's the jump host I reach the encrypted box's unlock
+  prompt through. Bring them up in the wrong order and the unlock path
+  doesn't exist yet.
+- Captured a baseline first — uptimes, mounts, disk usage, and the
+  timestamp of the newest file in each backup chain — so any gap after the
+  move is attributable to the move instead of a guess.
+- The verification steps check backup *files*, not timer status. That box
+  has gone silently quiet twice, 8 nights and then 9, both times with a
+  perfectly healthy-looking timer and zero backups actually landing. A
+  clean `systemctl` listing is not evidence that anything ran.
+
+**Caught the encrypted box sitting at its unlock prompt, from the outside.**
+- Mid-session it stopped answering on the normal SSH port while the
+  early-boot one was open, and the mesh address timed out. That pattern on
+  its own could just be a network fault.
+- Confirmed it properly by scanning the host key: early boot presents a
+  different key than the real SSH daemon does, and the one being served
+  matched the early-boot key I'd recorded when I built the thing. So it was
+  genuinely sitting in early boot waiting for a passphrase, not unreachable.
+- Worth having written those two fingerprints down back then. It turned
+  "why is this box weird" into a definite answer in about ten seconds.
+
+**Spec'd a rack-mount NAS, and the useful finding was about the RAID card.**
+- The best-value box I found ships with a hardware RAID controller that
+  can't be flashed to passthrough mode, and its JBOD mode isn't the same
+  thing — different driver, plus an onboard cache that interacts badly with
+  ZFS. ZFS wants the raw disks.
+- Checked the chassis spec instead of assuming I'd need to buy an HBA: the
+  board has six onboard SATA ports and the drive backplane uses individual
+  per-drive ports rather than an expander. So the fix is to remove the RAID
+  card and cable the bays straight to the motherboard. Cheaper, less heat,
+  and it frees the expansion slot.
+- Debugged a kernel panic on my laptop after a kernel update: an out-of-tree VirtualBox module failed to build against the new kernel, which stopped the update hooks before the initramfs was built, so the new kernel booted with no initrd.
