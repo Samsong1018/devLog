@@ -1282,3 +1282,28 @@ attack chain into something that actually needs investigating.**
   card and cable the bays straight to the motherboard. Cheaper, less heat,
   and it frees the expansion slot.
 - Debugged a kernel panic on my laptop after a kernel update: an out-of-tree VirtualBox module failed to build against the new kernel, which stopped the update hooks before the initramfs was built, so the new kernel booted with no initrd.
+
+## 2026-09-19
+
+**Tracked down a campus WPA2-Enterprise wifi failure in the supplicant log.**
+- Laptop wouldn't join the secured network. It associated and then dropped
+  instantly, which normally gets blamed on a typo'd password or a bad driver.
+- Neither. The log showed the auth server proposing one EAP method and my
+  saved profile configured for a different one, so my own machine sent a NAK
+  and the handshake died about 70ms in. Signal was fine, hardware was fine.
+- Fix is a new profile using the method the server actually offers. I also
+  pinned the system CA bundle and a domain match against the auth server's
+  certificate. Plenty of Linux guides skip that step, and without it you'll
+  hand your credentials to anything broadcasting the same network name.
+- Not applied yet, still need to enter credentials, and the password goes in
+  through the desktop dialog so it lands in the keyring instead of shell
+  history.
+
+**Microsoft's ISO download API rejects my VPN's exit address.**
+- Went to pull an official Windows ISO while tunneled through my self-hosted
+  VPN box. Their bot filter rejected every request. The exit is a cloud
+  provider address, and those get treated as automated traffic by default.
+- Interesting detail: the first API call in the flow goes through fine. Only
+  the step that hands out the actual download link is gated.
+- Taking the download off the tunnel for the duration instead of trying to
+  route selectively around the filter. Less clever, less to unwind after.
