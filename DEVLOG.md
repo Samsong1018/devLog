@@ -1307,3 +1307,69 @@ attack chain into something that actually needs investigating.**
   the step that hands out the actual download link is gated.
 - Taking the download off the tunnel for the duration instead of trying to
   route selectively around the filter. Less clever, less to unwind after.
+
+## 2026-09-20
+
+**Shrank an encrypted volume to make room for a dual boot.**
+- Needed a terabyte back off a 2TB NVMe that was one big LUKS container with
+  a single ext4 filesystem on it. No free space, so the only way there is to
+  shrink three nested layers in the right order and not get the numbers wrong.
+- Filesystem first, then close the encrypted mapping, then the partition.
+  Doing it in that order means every layer is always smaller than the thing
+  containing it, so a mistake truncates empty space instead of real data.
+- Skipped resizing the encrypted mapping explicitly. Closing it and
+  reopening after the partition shrink makes it size itself to whatever is
+  there. One less hand-computed number is one less way to lose the volume.
+- Verified with a checksum-clean fsck before and after. Same file count,
+  same fragmentation figure, nothing moved. Landed exactly 1 TiB free.
+- Backed up the irreplaceable part first. The bulk of the volume was a game
+  install I could re-download, but the save data was about 650MB, so there
+  was no reason not to have a copy before starting.
+
+**Built a Windows install USB the two-partition way, and verified it properly.**
+- The install image inside the ISO is larger than the maximum file size
+  FAT32 supports, but most firmware won't boot from NTFS. So neither
+  filesystem alone can do the job.
+- Split it: a small FAT32 partition with the boot chain and everything
+  except that one oversized file, and an NTFS partition with the full
+  contents. Firmware boots the first, the installer finds the payload on
+  the second.
+- Checksummed the boot files and the big install image on both sides against
+  the source. All matched. "It copied without an error message" isn't the
+  same as "it copied correctly," and a bad install USB fails halfway through
+  an install, which is the worst time to find out.
+- Referred to the stick by its serial-derived device path rather than the
+  usual short name the whole way through. Those short names get handed out
+  in whatever order things enumerate, so they can point at a different disk
+  after a reboot or a second stick. The serial path can't.
+
+**Built a multi-boot rescue stick, and got three diagnoses wrong first.**
+- Put Ventoy on a spare 16GB stick so it can hold several bootable images
+  at once instead of being reformatted every time I need a different one.
+  Three images on it now: a desktop Linux live image, a rescue image, and
+  a Windows installer. Verified each one twice, once after downloading
+  and once read back off the stick, because a slow flash device is
+  exactly the kind that drops bytes quietly.
+- First wrong call: I blamed my VPN for a download running at under
+  1 MB/s. A speed test over the same link came back at 13.9 MB/s, which
+  killed that theory. The actual culprit was the distro's primary
+  download host being slow. Switching to a mirror took it to 11 MB/s.
+- Second wrong call: I blamed the USB port for slow writes and suggested
+  moving the stick. The stick declares USB 2.0 in its own descriptor, so
+  no port would have helped. Worth knowing that a 2.0 device in a 3.0
+  port still shows up on the controller's 2.0 half, so "which bus is it
+  on" tells you nothing by itself.
+- Third: the write speed I quoted was measured while a download was
+  competing for the same controller. Real throughput was about triple
+  that, and the copy finished in a third of the time I predicted.
+- The theme is measuring under the wrong conditions and then reasoning
+  confidently from the bad number. The speed test is what broke the
+  first one open, and it took ten seconds. Should have been step one.
+
+**Also: keep a rescue disk that can actually do the repair.**
+- The stick I overwrote had a server install image on it. Checking the
+  package manifest, that image ships with disk-encryption tooling but no
+  bootloader tooling at all, so it could have unlocked my encrypted root
+  and then not been able to reinstall the bootloader.
+- The desktop image has both. For a machine with an encrypted root and a
+  dual boot, that difference is the whole point of carrying the disk.
