@@ -1373,3 +1373,36 @@ attack chain into something that actually needs investigating.**
   and then not been able to reinstall the bootloader.
 - The desktop image has both. For a machine with an encrypted root and a
   dual boot, that difference is the whole point of carrying the disk.
+
+## 2026-09-21
+
+- Designed a custom GRUB theme for my dual-boot laptop to match the desktop:
+  my wallpaper, the magenta accent, a see-through menu panel, and the
+  system's own UI font converted to GRUB's bitmap format. While doing it I
+  found the old theme had never loaded because its config pointed at a
+  folder that didn't exist, so GRUB had quietly used its stock menu.
+- Replaced the auto-detected Windows entry with a fixed one that finds the
+  Windows boot partition by filesystem ID. Drive names on this machine
+  swap between boots, so a device-named label would drift.
+- Custom GRUB theme: put Windows right after Ubuntu in the boot menu and fixed the highlighted entry bleeding into the one below it (spacing was smaller than the highlight border).
+
+## 2026-09-22
+
+**Brought my resume up to date, web and PDF.**
+- Added my homelab as its own project: an always-on home server that holds
+  backups and logs for everything else, and a full-disk-encrypted box
+  running my password manager that has to be unlocked by hand after every
+  boot. Neither one has a port open to the internet.
+- Marked my voice assistant project as on hold, since its hardware became
+  the home server.
+- Had to cut the PDF blurbs down to get it back to one page.
+- The site's CDN kept serving the old PDF from cache after the deploy, so
+  the links now carry a version string. That way a fresh upload shows up
+  right away instead of up to four hours later.
+- Got a small bar-style secondary monitor working on Linux. The USB-C to
+  HDMI adapter was passing along its own display info instead of the
+  monitor's, so everything came out squashed. Using a direct USB-C cable
+  fixed it.
+- Found my editor was slow because the snap build had quietly fallen back
+  to software rendering. The regular package build uses the GPU fine, so
+  I'm switching to that one.
