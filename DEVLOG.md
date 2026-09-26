@@ -1406,3 +1406,9 @@ attack chain into something that actually needs investigating.**
 - Found my editor was slow because the snap build had quietly fallen back
   to software rendering. The regular package build uses the GPU fine, so
   I'm switching to that one.
+- Rewrote the D2D and Floret descriptions for my portfolio. They now lead
+  with what's actually different about each one and name the real security
+  work, including the relay key-exchange fix in D2D.
+- Made a network diagram of my homelab: the cloud VPN hub, the isolated
+  honeypot feeding it attack data, and every device on the WireGuard mesh.
+  It shows roles only, no addresses.
