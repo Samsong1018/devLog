@@ -1428,3 +1428,30 @@ attack chain into something that actually needs investigating.**
   site, repo, or dev log.
 - Gave my portfolio real typography (Instrument Serif headings, Inter body)
   and cleaned up typos and tech-name casing across the page.
+
+## 2026-09-30
+
+- Replaced the JavaScript-driven nav buttons on my portfolio with real anchor
+  links, so middle-click, right-click and keyboard navigation work normally.
+- Reworked the portfolio's project carousel so the slides stack in a single grid
+  cell and cross-fade by toggling a class, instead of snapping between
+  display states.
+- Added a live slide counter to the portfolio carousel that updates on both
+  arrows and the auto-advance timer.
+
+## 2026-10-01
+
+- Dropped the redundant numbering column from the projects table on my
+  portfolio and checked the layout at desktop and phone widths.
+- Reordered the About Me copy on my portfolio so the security work leads, and
+  cleaned up a few awkward sentences.
+- Fixed the source order of the Skills section on my portfolio so the heading
+  comes before its content for screen readers, with no visual change.
+- Polished the contact section of my portfolio: matching heading underline,
+  cleaner button spacing, and a visible keyboard focus style on the links.
+- Added a short "what I am looking for" line to my portfolio contact section and
+  made the contact buttons size to their text so the email address fits.
+- Added a back-to-top link to my portfolio footer.
+- Did a full responsive pass on my portfolio: font sizes now use clamp() so
+  nothing gets unreadable on phones, the mobile layout was rewritten section by
+  section, and I checked it at ten screen sizes from 320px phones to 1080p.
