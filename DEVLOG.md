@@ -1412,3 +1412,19 @@ attack chain into something that actually needs investigating.**
 - Made a network diagram of my homelab: the cloud VPN hub, the isolated
   honeypot feeding it attack data, and every device on the WireGuard mesh.
   It shows roles only, no addresses.
+
+## 2026-09-27
+
+- Cleaned up my portfolio site markup so every id and class follows kebab-case,
+  and updated the stylesheet and carousel script to match.
+- Finished styling the Skills and Contact sections of my portfolio so they
+  match the rest of the page, and fixed a layout bug that was squashing the
+  contact links.
+- Made my portfolio site responsive. Desktop stays pixel-identical; on phones
+  the sections stack, the nav wraps, and font sizes are clamped so nothing
+  gets tiny.
+- Hooked up every button and link on my new portfolio site: nav jumps to
+  sections, the resume opens as a PDF, and each project links to its live
+  site, repo, or dev log.
+- Gave my portfolio real typography (Instrument Serif headings, Inter body)
+  and cleaned up typos and tech-name casing across the page.
