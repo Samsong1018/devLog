@@ -1455,3 +1455,21 @@ attack chain into something that actually needs investigating.**
 - Did a full responsive pass on my portfolio: font sizes now use clamp() so
   nothing gets unreadable on phones, the mobile layout was rewritten section by
   section, and I checked it at ten screen sizes from 320px phones to 1080p.
+- Smoothed the hover states on my portfolio so links and arrows change colour
+  with a short fade and no longer shift the layout.
+- Shortened the project descriptions in my portfolio carousel and added stack
+  tags to each slide, laid out with an auto-fit grid.
+- Second responsive check on my portfolio at nine screen sizes. Fixed a
+  sideways scroll from a misplaced heading underline, a hero link that was
+  unreadably small on phones, and tags whose text wrapped unevenly.
+
+## 2026-10-06
+
+- Tracked down a login screen freeze on my Linux laptop after newer kernels.
+  Boot logs showed the NVIDIA driver loading a few seconds after the login
+  screen started, and the greeter hung when the GPU showed up mid-session.
+  Fix is loading the driver early from the initramfs.
+- Resume: updated the D2D and Floret project blurbs to match my portfolio site, leading with the security audit findings from each project.
+- Resume: cut it down to my five strongest projects, moved contact to my own domain, and reworked the training section.
+- Resume: switched from two columns to one so applicant tracking systems read it in order, rewrote each project as two bullets, added framework keywords to skills, and made the contact links clickable.
+- Resume: ATS cleanup. Kept each education date on the same line as its school so parsers pair them correctly, added my city and expected graduation year, and rewrote the summary around security and self-hosting.
