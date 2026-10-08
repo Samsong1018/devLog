@@ -1473,3 +1473,11 @@ attack chain into something that actually needs investigating.**
 - Resume: cut it down to my five strongest projects, moved contact to my own domain, and reworked the training section.
 - Resume: switched from two columns to one so applicant tracking systems read it in order, rewrote each project as two bullets, added framework keywords to skills, and made the contact links clickable.
 - Resume: ATS cleanup. Kept each education date on the same line as its school so parsers pair them correctly, added my city and expected graduation year, and rewrote the summary around security and self-hosting.
+- Resume: published the updated version to my site and the GitHub Pages copy, and synced the site's education and skills sections to match.
+- Portfolio redesign: carousel now counts its own slides, images reserve their space to stop layout shift, autoplay and fades turn off for people with reduced-motion set, and the page has proper share-preview tags and a favicon. Dropped about 500KB of unused images.
+- Portfolio redesign: added a 404 page in the new style, with links back to the home page and project list.
+- Portfolio redesign: rebuilt the security page (live honeypot stats and a 30-day activity chart), the AMvpn case study, the project log pages and the honeypot bait page in the new design, and moved over robots, sitemap and security.txt.
+- Portfolio redesign: made a new link-preview image in the site's green style.
+- Portfolio redesign: self-hosted the fonts so the site makes no third-party requests and passes its own strict content security policy, moved the carousel controls out of inline handlers, and brought my DRILL trainer over to the new site.
+- Portfolio redesign is live on my site: new design, self-hosted fonts, rebuilt security/case study/log pages, with a backup of the old site taken before the deploy.
+- Fixed my site's honeypot stats resetting whenever the web server rotated its logs: the counter now reads rotated logs too and keeps a running daily history, so the security page shows real all-time numbers again.
