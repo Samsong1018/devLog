@@ -1481,3 +1481,6 @@ attack chain into something that actually needs investigating.**
 - Portfolio redesign: self-hosted the fonts so the site makes no third-party requests and passes its own strict content security policy, moved the carousel controls out of inline handlers, and brought my DRILL trainer over to the new site.
 - Portfolio redesign is live on my site: new design, self-hosted fonts, rebuilt security/case study/log pages, with a backup of the old site taken before the deploy.
 - Fixed my site's honeypot stats resetting whenever the web server rotated its logs: the counter now reads rotated logs too and keeps a running daily history, so the security page shows real all-time numbers again.
+
+## 2026-10-08
+- Cleaned up my laptop's disk (about 24G back: old ISOs, trash, package caches) and my Obsidian vault. The vault had piled up junk project folders because my session-summary hook named each project after whatever directory the session ran in. Fixed the hook so it skips non-project dirs like home and Downloads, and deleted 108 auto-generated stub notes that nothing linked to.
