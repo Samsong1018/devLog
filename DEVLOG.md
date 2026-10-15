@@ -1484,3 +1484,6 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-08
 - Cleaned up my laptop's disk (about 24G back: old ISOs, trash, package caches) and my Obsidian vault. The vault had piled up junk project folders because my session-summary hook named each project after whatever directory the session ran in. Fixed the hook so it skips non-project dirs like home and Downloads, and deleted 108 auto-generated stub notes that nothing linked to.
+
+## 2026-10-14
+- My self-hosted VPN box's honeypot dashboard export started timing out. Tracked it to the capture database quietly growing to ~3 million rows / 1.7GB because each event keeps its full raw record, so the export tried to serialize the whole table at once. Pulled a clean recent slice straight from the database instead and confirmed the honeypot is still healthy and collecting — now planning a retention/rollup fix so the export stops choking.
