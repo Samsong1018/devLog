@@ -1487,3 +1487,9 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-14
 - My self-hosted VPN box's honeypot dashboard export started timing out. Tracked it to the capture database quietly growing to ~3 million rows / 1.7GB because each event keeps its full raw record, so the export tried to serialize the whole table at once. Pulled a clean recent slice straight from the database instead and confirmed the honeypot is still healthy and collecting — now planning a retention/rollup fix so the export stops choking.
+
+## 2026-10-15
+- **NueralNetwork** — Built a small Tkinter tool for hand-drawing 24x24 digits to build my own MNIST-style training set. It prompts for whichever digit has the fewest samples so the classes stay balanced.
+
+## 2026-10-17
+- **NueralNetwork** — Pulled the MNIST dataset (60k train / 10k test) and wrote a converter that saves it as numpy archives, plus a 24x24 resized copy so it lines up with the digits I draw in my collector tool.
