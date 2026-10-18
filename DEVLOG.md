@@ -1493,3 +1493,4 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-17
 - **NueralNetwork** — Pulled the MNIST dataset (60k train / 10k test) and wrote a converter that saves it as numpy archives, plus a 24x24 resized copy so it lines up with the digits I draw in my collector tool.
+- **NueralNetwork** — Trained my from-scratch MLP (plain NumPy, hand-written backprop, two hidden layers of 64) on MNIST: 95.6% on the 10k test set after 5 epochs, with 4s and 2s as the weakest digits. Added an accuracy script and a README, and got the project ready for its own GitHub repo.
