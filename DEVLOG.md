@@ -1493,4 +1493,10 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-17
 - **NueralNetwork** — Pulled the MNIST dataset (60k train / 10k test) and wrote a converter that saves it as numpy archives, plus a 24x24 resized copy so it lines up with the digits I draw in my collector tool.
-- **NueralNetwork** — Trained my from-scratch MLP (plain NumPy, hand-written backprop, two hidden layers of 64) on MNIST: 95.6% on the 10k test set after 5 epochs, with 4s and 2s as the weakest digits. Added an accuracy script and a README, and got the project ready for its own GitHub repo.
+- **NueralNetwork** — Trained my from-scratch MLP (plain NumPy, hand-written backprop, two hidden layers of 64) on MNIST: 95.6% on the 10k test set after 5 epochs, with 4s and 2s as the weakest digits. Added an accuracy script and a README, and published the project to GitHub.
+
+## 2026-10-18
+- **somab.dev** — Started a redesign of my portfolio homepage on a separate copy: reduced the colors to one dark base and one accent using CSS custom properties, replaced the pill-tag grids with plain monospace lists, and swapped the auto-rotating project carousel for stacked featured-project sections so every project shows without JavaScript.
+- **somab.dev** — Reworked the redesign's project and skills sections to read more like a printed portfolio than a landing page: one consistent project layout with the tech stack written as a sentence, and skills folded into the About section as plain resume-style lines.
+- **somab.dev** — Shipped the homepage redesign to the live site, after backing up the server copy first and bumping the stylesheet cache-buster so Cloudflare and browsers pick up the new CSS right away. Also made my name in the nav bar link back to the homepage on every page.
+- **somab.dev** — Moved the security page, project logs and case study onto the same color tokens as the new homepage, replacing alternating section backgrounds with thin dividers. No hardcoded colors left in any stylesheet.
