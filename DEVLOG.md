@@ -1500,3 +1500,6 @@ attack chain into something that actually needs investigating.**
 - **somab.dev** — Reworked the redesign's project and skills sections to read more like a printed portfolio than a landing page: one consistent project layout with the tech stack written as a sentence, and skills folded into the About section as plain resume-style lines.
 - **somab.dev** — Shipped the homepage redesign to the live site, after backing up the server copy first and bumping the stylesheet cache-buster so Cloudflare and browsers pick up the new CSS right away. Also made my name in the nav bar link back to the homepage on every page.
 - **somab.dev** — Moved the security page, project logs and case study onto the same color tokens as the new homepage, replacing alternating section backgrounds with thin dividers. No hardcoded colors left in any stylesheet.
+
+## 2026-10-23
+- Built two practice exam web apps for my cert studying: a 100-question ISC2 CC exam weighted to the real domain split, and a 60-question TryHackMe Pre Security exam. Both have a timed exam mode, a study mode with instant explanations, and a per-domain score breakdown.
