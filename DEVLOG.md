@@ -1503,3 +1503,9 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-23
 - Built two practice exam web apps for my cert studying: a 100-question ISC2 CC exam weighted to the real domain split, and a 60-question TryHackMe Pre Security exam. Both have a timed exam mode, a study mode with instant explanations, and a per-domain score breakdown.
+
+## 2026-10-25
+- Fixed my cert practice exams repeating the same questions. Doubled both question banks and added a rotation engine that draws a fresh set each attempt, favoring questions I have not seen or missed last time, with per-browser coverage tracking and a reset.
+- Expanded both cert practice exams again (ISC2 CC to 300 questions, Pre Security to 180), covering topics the earlier batches skipped. Ran a script to check domain ratios, duplicates, and answer-set shape before publishing.
+- Set up a local image generation stack on my laptop (ComfyUI + SDXL) on a 6GB GPU. Needed a full-precision VAE flag to avoid the known half-precision black-image problem on that GPU generation; a 1024x1024 image takes about 90 seconds including model load. Also ran a health check on the machine and compared current open-weight image models that fit in 6GB.
+- Extended the local image-gen setup to four more models on the 6GB laptop GPU (Flux.1 dev, FLUX.2 Klein, Z-Image Turbo, Qwen-Image 2.1) and wrote a small converter that turns API-format ComfyUI graphs into one-click workflows in the UI. Real numbers: Klein ~2 min/image, Z-Image ~6 min, Flux.1 dev ~19 min (thermal throttling). Qwen-Image 2.1 GGUF won't load because the loader node doesn't know its new architecture yet.
