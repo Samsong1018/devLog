@@ -1516,3 +1516,4 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-10-27
 - Refactored my Godot visual-novel school project around a single reusable text box component with a shared theme, typewriter text, and consistent choice buttons, plus a fade-transition scene manager. Replaced hand-numbered dialogue phases with awaited linear scripts, and fixed a crash and a double-fire input bug where Enter re-triggered the last clicked choice button. Verified each scene by driving it with a scripted test harness and screenshots.
+- Wrote a README for my Godot visual-novel school project so I can build the remaining scenes on my own: how to add a scene, how the shared text box and game-state autoload work, which art goes with which scene, and a list of the pieces still unbuilt (free-text input, tag panel).
