@@ -1517,3 +1517,16 @@ attack chain into something that actually needs investigating.**
 ## 2026-10-27
 - Refactored my Godot visual-novel school project around a single reusable text box component with a shared theme, typewriter text, and consistent choice buttons, plus a fade-transition scene manager. Replaced hand-numbered dialogue phases with awaited linear scripts, and fixed a crash and a double-fire input bug where Enter re-triggered the last clicked choice button. Verified each scene by driving it with a scripted test harness and screenshots.
 - Wrote a README for my Godot visual-novel school project so I can build the remaining scenes on my own: how to add a scene, how the shared text box and game-state autoload work, which art goes with which scene, and a list of the pieces still unbuilt (free-text input, tag panel).
+
+## 2026-10-28
+- Debugged my Godot visual-novel school project by scripting full playthroughs through every branch and comparing behavior against the design doc. Fixed two crash paths and a dialogue-skipping bug, made conditional dialogue options match on text instead of array index, and corrected several score changes that did not match the script.
+- Added a retell function for dialogue where NPCs repeat back a trimmed version of what the player said, then built the visual novel's ending scene: a three-column recap of what you did, said, and what was written about you, a closing question, and a role-flip scene. Verified by scripting playthroughs through every path to the final screen.
+- Added a title screen to my visual novel school project, made its text inputs accept blank answers (silence is a valid answer in the design), and compiled a prioritized to-do list by diffing the design doc against the implementation.
+- Implemented the accept / rework / refuse choice for every identity tag in my visual novel project, as one shared function. Reworked tags take a player-typed word and refused tags are hidden but cost standing with peers, matching the design doc. Verified each path by scripted playthroughs.
+- Built a reusable player character scene for my visual novel that dresses itself from game state and displays identity tags as live labels with their sources, then swapped it in for the hand-built copies in every scene.
+- Finished the remaining design-doc features in my visual novel project: an unlock system that persists between playthroughs, silence and ask-back dialogue options, optional free-text answers that NPCs retell back, new tags driven by score thresholds, and blank-face rendering when a character cannot read the player. Verified with scripted playthroughs.
+
+## 2026-10-29
+
+- Built JobHunt, a Python job-alert tool that polls company applicant-tracking APIs (Greenhouse, Lever, Ashby) directly for entry-level security, IT, and software roles in my area or remote, dedupes against a local database, and sends push alerts. Runs on a cron schedule on one of my self-hosted servers under a dedicated unprivileged user.
+- Expanded my job-alert script from 3 ATS APIs to 96 sources, including the SimplifyJobs GitHub new-grad/internship lists. Added description screening for experience requirements and clearance, cross-source dedupe, and unit tests, then moved it to my home NAS box on a twice-daily schedule.
