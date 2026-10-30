@@ -1530,3 +1530,8 @@ attack chain into something that actually needs investigating.**
 
 - Built JobHunt, a Python job-alert tool that polls company applicant-tracking APIs (Greenhouse, Lever, Ashby) directly for entry-level security, IT, and software roles in my area or remote, dedupes against a local database, and sends push alerts. Runs on a cron schedule on one of my self-hosted servers under a dedicated unprivileged user.
 - Expanded my job-alert script from 3 ATS APIs to 96 sources, including the SimplifyJobs GitHub new-grad/internship lists. Added description screening for experience requirements and clearance, cross-source dedupe, and unit tests, then moved it to my home NAS box on a twice-daily schedule.
+
+## 2026-10-30
+
+- Built a small speed cubing timer for the terminal: random scrambles, spacebar start/stop, ao5/ao12 averages, and a persistent personal best saved to a local JSON file with atomic writes. Smoke tested through a pseudo-terminal.
+- Turned my terminal cubing timer into a Tkinter GUI with a traditional hold-to-ready, release-to-start flow, color states, X11 key-autorepeat debouncing, and a stats side panel. Verified the state machine with synthetic key events.
