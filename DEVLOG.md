@@ -1535,3 +1535,7 @@ attack chain into something that actually needs investigating.**
 
 - Built a small speed cubing timer for the terminal: random scrambles, spacebar start/stop, ao5/ao12 averages, and a persistent personal best saved to a local JSON file with atomic writes. Smoke tested through a pseudo-terminal.
 - Turned my terminal cubing timer into a Tkinter GUI with a traditional hold-to-ready, release-to-start flow, color states, X11 key-autorepeat debouncing, and a stats side panel. Verified the state machine with synthetic key events.
+
+## 2026-11-01
+- Asked (Godot visual novel for philosophy class): fixed the ending screen, new-run state reset, score clamping, and a dialogue bug where an NPC quoted a detention slip.
+- Home NAS: fixed my phone seeing the Samba share as read-only. Server and permissions were fine; enabling the Apple-compat VFS modules (fruit/streams_xattr) on the share fixed the iOS Files client.
