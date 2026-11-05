@@ -1539,3 +1539,6 @@ attack chain into something that actually needs investigating.**
 ## 2026-11-01
 - Asked (Godot visual novel for philosophy class): fixed the ending screen, new-run state reset, score clamping, and a dialogue bug where an NPC quoted a detention slip.
 - Home NAS: fixed my phone seeing the Samba share as read-only. Server and permissions were fine; enabling the Apple-compat VFS modules (fruit/streams_xattr) on the share fixed the iOS Files client.
+
+## 2026-11-04
+- Ran a read-only security audit across AMvpn, my web host, and my password-vault box. Biggest find: the WireGuard mesh is flat, so my pentest lab Pi could reach the vault box and NAS directly. Also found the public web apps running as root and a couple of critical npm advisories. Fix list written up, nothing changed yet.
