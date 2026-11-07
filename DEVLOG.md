@@ -1542,3 +1542,7 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-11-04
 - Ran a read-only security audit across AMvpn, my web host, and my password-vault box. Biggest find: the WireGuard mesh is flat, so my pentest lab Pi could reach the vault box and NAS directly. Also found the public web apps running as root and a couple of critical npm advisories. Fix list written up, nothing changed yet.
+
+## 2026-11-06
+- MLP from scratch: rewrote my MLP on top of my own numpy autograd Tensor, so each layer is one weight matrix instead of a list of scalar neurons. Gradients check out numerically, and moving MNIST to mini-batches takes an epoch from very slow to under 2 seconds, with about 95% test accuracy after a few epochs in testing.
+- MLPSkeleton: tidied the tensor MLP's train method. Clearer argument names, readable progress output, and it now returns a per-epoch history of cost, accuracy and learning rate.
