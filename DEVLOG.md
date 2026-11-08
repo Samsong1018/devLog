@@ -1546,3 +1546,7 @@ attack chain into something that actually needs investigating.**
 ## 2026-11-06
 - MLP from scratch: rewrote my MLP on top of my own numpy autograd Tensor, so each layer is one weight matrix instead of a list of scalar neurons. Gradients check out numerically, and moving MNIST to mini-batches takes an epoch from very slow to under 2 seconds, with about 95% test accuracy after a few epochs in testing.
 - MLPSkeleton: tidied the tensor MLP's train method. Clearer argument names, readable progress output, and it now returns a per-epoch history of cost, accuracy and learning rate.
+
+## 2026-11-07
+- MLP from scratch: got a makemore-style character-level model training on my own numpy autograd Tensor, with a learned embedding table, 3-character context, tanh hidden layer and a fused cross-entropy loss I gradient-checked against finite differences. Added the ops it needed along the way (indexing with gradients, view, exp, log, tanh). Dev loss came down to about 2.10–2.16 after tuning steps, learning rate decay and weight init.
+- MLP from scratch: added axis-aware mean, variance and standard deviation to my autograd Tensor, each as a single graph node with a hand-derived backward, plus scaled random init. All of them match numpy and finite-difference gradients. That's the groundwork for BatchNorm in the next part of makemore.
