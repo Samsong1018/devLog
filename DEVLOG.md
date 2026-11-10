@@ -1550,3 +1550,11 @@ attack chain into something that actually needs investigating.**
 ## 2026-11-07
 - MLP from scratch: got a makemore-style character-level model training on my own numpy autograd Tensor, with a learned embedding table, 3-character context, tanh hidden layer and a fused cross-entropy loss I gradient-checked against finite differences. Added the ops it needed along the way (indexing with gradients, view, exp, log, tanh). Dev loss came down to about 2.10–2.16 after tuning steps, learning rate decay and weight init.
 - MLP from scratch: added axis-aware mean, variance and standard deviation to my autograd Tensor, each as a single graph node with a hand-derived backward, plus scaled random init. All of them match numpy and finite-difference gradients. That's the groundwork for BatchNorm in the next part of makemore.
+
+## 2026-11-09
+- Fixed my `gpp` shell helper for C++ work: forwards all args now and adds -Wextra.
+- MLP from scratch: started porting my Python MNIST MLP to C++. Random init with <random>, all parameters bundled in a struct, and a plan to load MNIST as raw binary files converted once from numpy.
+- Audited RAM and disk across my servers to pick a host for a new website plus a MySQL container. My web host has room; my VPN box doesn't.
+- Kiroween hackathon: set up the base HTML template and stylesheet for my Dashboard Generator entry (Skeleton Crew category).
+- MLP from scratch: reorganized the repo ahead of rebuilding the makemore MLP with classes. Renamed folders and scripts by what they actually are (micrograd, mnist, bigram, embedding) and set up a home for the new makemore code.
+- MLP from scratch: built Linear, BatchNorm1d, and Tanh layer classes on top of my own autograd Tensor. Gradient-checked BatchNorm against finite differences and it matches.
