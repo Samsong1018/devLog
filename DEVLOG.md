@@ -1574,3 +1574,12 @@ attack chain into something that actually needs investigating.**
 ## 2026-11-12
 - MLP from scratch: rewrote the README to cover everything since makemore part two: the nn.py layer classes, batch norm by hand and with classes, and the WaveNet-style model, plus a dev loss table showing the progress from 2.17 down to 2.02.
 - MLP from scratch: started a 2x2 Rubik's cube solver. Wrote the cube simulator as numpy permutations over a flat 24-sticker array with one corner held fixed, and checked it with a full breadth-first search: it reaches all 3,674,160 states with the known depth distribution (max 11 moves), so the move tables are right. The BFS doubles as the source of optimal-solution labels for training.
+
+## 2026-11-14
+- KiroweenHackathon: handled a leaked .env in our team repo. Removed it from every commit with git-filter-repo, force-pushed with a lease, rotated the DB tunnel, MySQL and encryption-key secrets and confirmed the old ones are rejected. Added a .env.example so it doesn't happen again.
+- **DashGen (Kiroween)**: built the sign in / sign up page with forgot and reset password flows, client-side validation that mirrors the server rules, and error handling for duplicates and login lockouts.
+- **DashGen (Kiroween)**: added a live bar chart next to the login and sign-up forms, one bar per field that grows as you type, styled to match the dashboard editor's own chart widgets.
+
+## 2026-11-15
+- **DashGen (Kiroween)**: built the read-only dashboard view page. It renders the same widgets as the editor on a square-cell CSS grid, stacks them in reading order on phones, auto-refreshes live widgets, and has a share dialog with a public/private switch. Pulled the shared widget styles into one stylesheet so the editor and viewer can't drift apart.
+- **DashGen (Kiroween)**: audited the dashboard view page and fixed what turned up. Refresh intervals are now limited to the editor's own options (a saved value like 0.01s used to start a 10ms fetch loop), owner controls stay hidden unless the API says you're the owner, auto-refresh redraws without flashing the loading skeleton, and widgets that share a source share one refetch.
