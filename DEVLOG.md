@@ -1583,3 +1583,6 @@ attack chain into something that actually needs investigating.**
 ## 2026-11-15
 - **DashGen (Kiroween)**: built the read-only dashboard view page. It renders the same widgets as the editor on a square-cell CSS grid, stacks them in reading order on phones, auto-refreshes live widgets, and has a share dialog with a public/private switch. Pulled the shared widget styles into one stylesheet so the editor and viewer can't drift apart.
 - **DashGen (Kiroween)**: audited the dashboard view page and fixed what turned up. Refresh intervals are now limited to the editor's own options (a saved value like 0.01s used to start a 10ms fetch loop), owner controls stay hidden unless the API says you're the owner, auto-refresh redraws without flashing the loading skeleton, and widgets that share a source share one refetch.
+
+## 2026-11-16
+- MLP from scratch: getting my own autograd Tensor ready for the GPT video. Fixed batched matrix multiply backward (it broke on 3D inputs, which attention needs), and added transpose, softmax and LayerNorm with hand-written backward passes. Each one is gradient-checked against finite differences or against the same op built out of my basic ops.
