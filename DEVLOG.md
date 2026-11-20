@@ -1604,3 +1604,5 @@ attack chain into something that actually needs investigating.**
 
 ## 2026-11-19
 - MLP from scratch: ran the first full 11.5-hour pilot session of my LLM pretraining run (151M params, two free cloud T4 GPUs). It trained on about 1.2B tokens at ~28.7k tokens/s, validation loss fell from 11.0 to about 3.5 on web text, and it stopped, saved, and uploaded its checkpoint on its own. Tracked a few strange loss drops to near zero down to junk "how many zeros are in a duotrigintillion" pages in the data, some a million tokens long.
+- MLP from scratch: added a junk filter to my dataset builder that drops documents where two tokens make up over half the text, then rebuilt the shards. It caught 117 documents out of ~2.3B tokens, mostly number-dump spam in the math source, and the clean shards are uploaded for the next pilot run.
+- MLP from scratch: started pulling the data for the full 16B-token pretraining run. Sized each source from measured tokens per GB, and added ~1.3B tokens of high-scoring Python and Markdown from Stack-Edu, fetched file by file from Software Heritage's S3 bucket with a resumable multiprocess downloader.
