@@ -1678,3 +1678,6 @@ attack chain into something that actually needs investigating.**
 - HiBeam's demo now recycles the oldest hour-old demo account when the cap is full, so someone spamming it can't lock real visitors out.
 - HiBeam (Kiroween): second mock-judging pass, then fixed what came up. Board pages no longer flash the wrong theme before a Kiroween board loads (each board's theme is remembered, and unseen boards stay hidden until it's known). Table cells now show ISO timestamps as a short local time, with the raw value on hover. README got an explicit "The skeleton" section listing the extension points, and the Devpost write-up now answers every Kiro prompt. Suite is at 377 tests.
 - **HiBeam (Kiroween)** — added a screenshot_dashboard MCP tool: headless Chromium renders a board's view page with the real client code and hands the PNG to the agent, so Kiro can check and fix its own boards without a human taking screenshots.
+
+## 2026-11-26
+- **HiBeam** — Added a pitch section to the login page (headline, short explainer, board screenshot) so first-time visitors see what the product does before they see a login form. Kept the demo button above the fold on desktop.
